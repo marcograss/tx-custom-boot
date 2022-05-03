@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 description = "crate to generate a boot.dat from a custom payload for the switch"
 repository = "https://github.com/marcograss/tx-custom-boot"
+license-file = "LICENSE"
 
 [dependencies]
 sha2 = "0.10.2"
