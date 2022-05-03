@@ -1,0 +1,11 @@
+[package]
+name = "tx-custom-boot"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sha2 = "0.10.2"
+binwrite = "0.2.1"
+
+[dev-dependencies]
+hex-literal = "0.3.4"
