@@ -89,13 +89,14 @@ pub fn get_version() -> &'static str {
 
 /// generate a boot.dat given a payload
 /// from https://gist.github.com/CTCaer/13c02c05daec9e674ba00ce5ac35f5be
+/// but revisited to match https://sx-boot-dat-creator.herokuapp.com/ which works for me
 /// `payload` is a byte array of the payload
 pub fn generate_boot_dat(payload: &[u8]) -> Vec<u8> {
     let mut header = BootDatHeader::default();
     header.inner.ident = [
-        0x43, 0x54, 0x43, 0x61, 0x65, 0x72, 0x20, 0x42, 0x4F, 0x4F, 0x54, 0x00,
+        0x49, 0x6e, 0x73, 0x61, 0x6e, 0x65, 0x20, 0x42, 0x4F, 0x4F, 0x54, 0x00,
     ];
-    header.inner.vers = [0x56, 0x32, 0x2E, 0x35];
+    header.inner.vers = [0x56, 0x31, 0x2E, 0x30];
 
     let stage_2_sha256 = sha256_digest(payload);
     header.inner.sha2_s2 = Sha2(stage_2_sha256.try_into().unwrap());
