@@ -132,7 +132,7 @@ mod tests {
         let hash = super::sha256_digest(generated.as_slice());
         assert_eq!(
             hash[..],
-            hex!("ce41209e72b8311fd5cf44be147ac0641a303eb3f9a2ed27c82ffb1e951a096f")
+            hex!("6ce4c88e604d351b0e14bca7dbf135b3c8c44428718b704883599f285eed984e")
         );
     }
 }
