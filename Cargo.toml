@@ -1,6 +1,6 @@
 [package]
 name = "tx-custom-boot"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "crate to generate a boot.dat from a custom payload for the switch"
 repository = "https://github.com/marcograss/tx-custom-boot"
@@ -9,6 +9,7 @@ license-file = "LICENSE"
 [dependencies]
 sha2 = "0.10.2"
 binwrite = "0.2.1"
+thiserror = "1.0.31"
 
 [dev-dependencies]
 hex-literal = "0.3.4"
