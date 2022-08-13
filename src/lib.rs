@@ -2,6 +2,7 @@
 //! crate to generate a boot.dat for sx pro from a payload for the switch
 
 use binwrite::{BinWrite, WriterOption};
+use conv::ValueFrom;
 use sha2::{Digest, Sha256};
 use std::fmt;
 use std::fmt::Formatter;
@@ -11,18 +12,18 @@ use thiserror::Error;
 #[derive(BinWrite, Debug, Default)]
 #[binwrite(little)]
 /// boot.dat header
-/// typedef struct boot_dat_hdr
-/// {
-///     unsigned char ident[0x10];
-///     unsigned char sha2_s2[0x20];
-///     unsigned int s2_dst;
-///     unsigned int s2_size;
-///     unsigned int s2_enc;
-///     unsigned char pad[0x10];
-///     unsigned int s3_size;
-///     unsigned char pad2[0x90];
-///     unsigned char sha2_hdr[0x20];
-/// } boot_dat_hdr_t;
+// typedef struct boot_dat_hdr
+// {
+//     unsigned char ident[0x10];
+//     unsigned char sha2_s2[0x20];
+//     unsigned int s2_dst;
+//     unsigned int s2_size;
+//     unsigned int s2_enc;
+//     unsigned char pad[0x10];
+//     unsigned int s3_size;
+//     unsigned char pad2[0x90];
+//     unsigned char sha2_hdr[0x20];
+// } boot_dat_hdr_t;
 struct BootDatHeader {
     inner: BootDatInner,
     sha2_hdr: Sha2,
@@ -49,6 +50,8 @@ pub enum Error {
     IoError(String),
     /// Error while converting the hash
     HashError,
+    /// Error while truncating lengths
+    TruncationError,
 }
 
 impl std::convert::From<std::io::Error> for Error {
@@ -62,6 +65,7 @@ impl std::fmt::Display for Error {
         match self {
             Error::IoError(s) => write!(fmt, "IO Error: {}", s),
             Error::HashError => write!(fmt, "Hash Error"),
+            Error::TruncationError => write!(fmt, "Number Truncation Error"),
         }
     }
 }
@@ -117,14 +121,18 @@ impl BinWrite for Sha2 {
 }
 
 /// Get the crate version
+#[must_use]
 pub fn get_version() -> &'static str {
     env!("CARGO_PKG_VERSION")
 }
 
 /// generate a boot.dat given a payload
-/// from https://gist.github.com/CTCaer/13c02c05daec9e674ba00ce5ac35f5be
-/// but revisited to match https://sx-boot-dat-creator.herokuapp.com/ which works for me
+/// from <https://gist.github.com/CTCaer/13c02c05daec9e674ba00ce5ac35f5be>
+/// but revisited to match <https://sx-boot-dat-creator.herokuapp.com/> which works for me
 /// `payload` is a byte array of the payload
+///
+/// # Errors
+/// Returns an Error if there are problem hashing or serializing
 pub fn generate_boot_dat(payload: &[u8]) -> Result<Vec<u8>, Error> {
     let mut header = BootDatHeader::default();
     header.inner.ident = [
@@ -134,8 +142,8 @@ pub fn generate_boot_dat(payload: &[u8]) -> Result<Vec<u8>, Error> {
 
     let stage_2_sha256 = sha256_digest(payload);
     header.inner.sha2_s2 = Sha2(stage_2_sha256.try_into().map_err(|_| Error::HashError)?);
-    header.inner.s2_dst = 0x40010000;
-    header.inner.s2_size = payload.len() as u32;
+    header.inner.s2_dst = 0x4001_0000;
+    header.inner.s2_size = u32::value_from(payload.len()).map_err(|_| Error::TruncationError)?;
 
     let mut inner_serialized = vec![];
     header.inner.write(&mut inner_serialized)?;
