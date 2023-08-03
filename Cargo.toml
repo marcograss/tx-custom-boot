@@ -10,7 +10,7 @@ version = "0.3.0"
 binwrite = "0.2.1"
 conv = "0.3.3"
 sha2 = "0.10.7"
-thiserror = "1.0.43"
+thiserror = "1.0.44"
 
 [dev-dependencies]
 hex-literal = "0.4.1"
